@@ -7,25 +7,20 @@ import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
 class RandomChar extends Component {
-    constructor(props) {
-        super(props);
-        this.updateChar()
-    }
-
     state = {
         char: {},
         loading: true,
         error: false
     }
-
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        })
-    }
-
     marvelService = new MarvelService();
+
+    componentDidMount() {
+        this.updateChar()
+        this.time = setInterval(this.updateChar, 1000000)
+    }
+    componentWillUnmount() {
+        clearInterval(this.time)
+    }
 
     onCharLoaded = (char) => {
         this.setState({
@@ -34,13 +29,20 @@ class RandomChar extends Component {
         })
     }
 
-    updateChar = () => {
-        this.setState({
-            loading: true,
-            error: false
-        })
+    onCharLoading = () => {
+        this.setState({loading: true})
+    }
 
+    onError = () => {
+        this.setState({
+            loading: false,
+            error: true
+        })
+    }
+    
+    updateChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000)
+        this.onCharLoading()
         this.marvelService
             .getCharacter(id)
             .then(this.onCharLoaded)
@@ -80,9 +82,13 @@ class RandomChar extends Component {
 
 const View = ({ char }) => {
     const { name, description, thumbnail, wiki, homepage } = char
+
+    const styleForThumbnail = thumbnail.includes('image_not_available')
+    const clazz = styleForThumbnail ? {objectFit: 'fill'} : null
+
     return (
         <div className="randomchar__block">
-            <img src={thumbnail} alt="Random character" className="randomchar__img" />
+            <img style={clazz} src={thumbnail} alt="Random character" className="randomchar__img" />
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">
