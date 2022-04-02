@@ -6,7 +6,6 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton'
 
 import './charInfo.scss';
-import thor from '../../resources/img/thor.jpeg';
 
 class CharInfo extends Component {
     state = {

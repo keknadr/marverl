@@ -4,27 +4,35 @@ import Spinner from '../spinner/Spinner'
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
 import './charList.scss';
-// import abyss from '../../resources/img/abyss.jpg';
 class CharList extends Component {
     state = {
         charList: [],
         loading: true,
-        error: false
+        error: false,
+        newItemLoading: false,
+        offset: 210
     }
     marvelService = new MarvelService()
 
-    componentDidMount() {
+    onRequest = (offset) => {
+        this.onCharListLoading()
         this.marvelService
-            .getAllCharacters()
+            .getAllCharacters(offset)
             .then(this.onCharListLoaded)
             .catch(this.onError)
     }
 
-    onCharListLoaded = (charList) => {
-        this.setState({
-            charList,
-            loading: false
-        })
+    onCharListLoading = () => {
+        this.setState({newItemLoading: true})
+    }
+
+    onCharListLoaded = (newCharList) => {
+        this.setState(({charList, offset}) => ({
+            charList: [...charList, ...newCharList],
+            loading: false,
+            newItemLoading: false,
+            offset: offset + 9
+        }))
     }
 
     onError = () => {
@@ -49,7 +57,7 @@ class CharList extends Component {
                 </li>
             )
         })
-        // return items
+
         return (
             <ul className="char__grid">
                 {items}
@@ -57,26 +65,32 @@ class CharList extends Component {
         )
     }
         
-    render() {
-        const {charList, loading, error} = this.state
-        
-        const items = this.renderItems(charList)
-        
-        const errorMessage = error ? <ErrorMessage /> : null
-        const spinner = loading ? <Spinner style={{gridColumn: '2/3'}} /> : null
-        const content = !(loading || error) ? items  : null
+render() {
+    const {charList, loading, error, offset, newItemLoading} = this.state
+    
+    const items = this.renderItems(charList)
+    
+    const errorMessage = error ? <ErrorMessage /> : null
+    const spinner = loading ? <Spinner /> : null
+    const content = !(loading || error) ? items  : null
 
-        return (
-            <div className="char__list">
-                {errorMessage}
-                {spinner}
-                {content}
-                <button className="button button__main button__long">
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        )
-    }
+    const hideButton = offset >= 1560 ? {display: 'none'} : null
+
+    return (
+        <div className="char__list">
+            {errorMessage}
+            {spinner}
+            {content}
+            <button
+                style={hideButton}
+                className="button button__main button__long"
+                disabled={newItemLoading}
+                onClick={() => this.onRequest(offset)}>
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
+}
 }
 
 export default CharList;
