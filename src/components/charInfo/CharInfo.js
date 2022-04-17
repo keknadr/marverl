@@ -1,6 +1,8 @@
 import {useState, useEffect} from 'react'
 import PropTypes from 'prop-types';
 
+import {Link} from 'react-router-dom'
+
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner'
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -12,9 +14,9 @@ const CharInfo = (props) => {
     const [char, setChar] = useState(null)
     const {loading, error, getCharacter, clearError} = useMarvelService();
 
-    useEffect(() => {
-        updateChar()
-    }, [])
+    // useEffect(() => {
+    //     updateChar()
+    // }, [])
 
     useEffect(() => {
         updateChar()
@@ -82,14 +84,15 @@ const View = ({char}) => {
                     comics
                         .slice(0, 10)
                         .map((item, i) => {
-                        return (
-                            <li
-                                key={i}
-                                className="char__comics-item">
-                                <a href={item.resourceURI}>{item.name}</a>
-                            </li>
-                        )
-                    })
+                            const comicId = item.resourceURI.split('/').slice(-1)
+                            return (
+                                <li
+                                    key={i}
+                                    className="char__comics-item">
+                                    <Link to={`/comics/${comicId}`}>{item.name}</Link>
+                                </li>
+                            )
+                        })
                 }
             </ul>
         </>
